@@ -2,7 +2,7 @@ import vlc
 import os
 import platform
 
-if platform.name == "Linux":
+if platform.system() == "Linux":
     os.system("vcgencmd display_power 1")
 
 current_video = None
