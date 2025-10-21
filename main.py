@@ -1,30 +1,30 @@
 import vlc
-import os
-import platform
 import time
 
-# Turn display on (if using vcgencmd control)
-if platform.system() == "Linux":
-    os.system("vcgencmd display_power 1")
+VIDEO_PATH = "test2.mp4"
 
-# Create a VLC instance with loop enabled
-# --no-video-title-show hides the overlay text
-# --input-repeat=-1 loops forever
-instance = vlc.Instance("--no-video-title-show --input-repeat=-1 --quiet")
+# Create VLC instance; keep it lean
+# --no-video-title-show : hides filename overlay
+# --quiet               : suppresses console spam
+instance = vlc.Instance("--no-video-title-show --quiet")
 
-# Create player
 player = instance.media_player_new()
-
-# Load media
-media = instance.media_new("test2.mp4")
+media  = instance.media_new(VIDEO_PATH)
 player.set_media(media)
-
-# Start playback
 player.play()
 
-# Keep script alive indefinitely
-try:
-    while True:
-        time.sleep(1)
-except KeyboardInterrupt:
-    player.stop()
+# Wait for playback to actually start
+while player.get_state() not in (vlc.State.Playing, vlc.State.Paused):
+    time.sleep(0.05)
+
+# Manual seamless-loop logic
+while True:
+    length = player.get_length()
+    pos = player.get_time()
+
+    if length > 0 and (length - pos) < 150:   # restart ~0.15 s before end
+        # restart media *without* tearing down the decoder
+        player.set_media(media)
+        player.play()
+        time.sleep(0.15)  # small delay to avoid double-trigger
+    time.sleep(0.02)
