@@ -1,32 +1,30 @@
 import vlc
 import os
 import platform
+import time
 
+# Turn display on (if using vcgencmd control)
 if platform.system() == "Linux":
     os.system("vcgencmd display_power 1")
 
-current_video = None
+# Create a VLC instance with loop enabled
+# --no-video-title-show hides the overlay text
+# --input-repeat=-1 loops forever
+instance = vlc.Instance("--no-video-title-show --input-repeat=-1 --quiet")
 
-instance = vlc.Instance()
-
+# Create player
 player = instance.media_player_new()
 
-# load two videos
-video1 = vlc.Media("test1.mp4")
-video2 = vlc.Media("test2.mp4")
+# Load media
+media = instance.media_new("test2.mp4")
+player.set_media(media)
 
-def play_video(player, video):
-    # need to call set_media() to (re)load a vid before playing
-    player.set_media(video)
-    player.play()
+# Start playback
+player.play()
 
-# start player
-play_video(player, video1)
-current_video = video1
-next_video = video2
-
-
-while True:
-    if player.get_state() ==  vlc.State.Ended:
-        play_video(player, next_video)
-        current_video, next_video = next_video, current_video
+# Keep script alive indefinitely
+try:
+    while True:
+        time.sleep(1)
+except KeyboardInterrupt:
+    player.stop()
