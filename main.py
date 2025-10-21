@@ -43,6 +43,7 @@ def play_video(video_path):
 
 # start with looping video
 current_video = "loop"
+last_trigger_video = None  # keep track of previous trigger
 play_video(loop_video_path)
 
 while True:
@@ -50,6 +51,12 @@ while True:
     if trigger_button.is_pressed and current_video == "loop":
         # pick a random trigger video
         if trigger_videos:
+
+            # make a list excluding the last played trigger
+            available_videos = [v for v in trigger_videos if v != last_trigger_video]
+            if not available_videos:  # all videos are the same as last, fallback
+                available_videos = trigger_videos
+
             chosen_video = random.choice(trigger_videos)
             print(f"Trigger detected! Playing: {chosen_video}")
             current_video = "trigger"
