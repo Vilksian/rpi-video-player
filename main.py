@@ -62,6 +62,10 @@ while True:
 
             chosen_video = random.choice(available_videos)
             print(f"Trigger detected! Playing: {chosen_video}")
+
+            # update last_trigger_video
+            last_trigger_video = chosen_video
+            
             current_video = "trigger"
             play_video(chosen_video)
         else:
