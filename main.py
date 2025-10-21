@@ -1,9 +1,4 @@
-import vlc
-import os
-import platform
-import random
-import glob
-import time
+import vlc, os, platform, random, glob, time
 from gpiozero import Button
 
 # --- setup ---
