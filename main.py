@@ -1,30 +1,58 @@
 import vlc
+import os
+import platform
+import random
+import glob
 import time
+from gpiozero import Button  # assuming you’re using a GPIO pin as input
 
-VIDEO_PATH = "test2.mp4"
+# --- setup ---
+if platform.system() == "Linux":
+    os.system("vcgencmd display_power 1")
 
-# Create VLC instance; keep it lean
-# --no-video-title-show : hides filename overlay
-# --quiet               : suppresses console spam
-instance = vlc.Instance("--no-video-title-show --quiet")
+# pin setup (adjust pin number)
+trigger_pin = 17
+trigger_button = Button(trigger_pin, pull_up=False)  # active HIGH input
 
+# collect videos
+loop_video_path = "loop.mp4"
+trigger_videos = glob.glob("*trigger*.mp4")
+
+# VLC setup
+instance = vlc.Instance()
 player = instance.media_player_new()
-media  = instance.media_new(VIDEO_PATH)
-player.set_media(media)
-player.play()
 
-# Wait for playback to actually start
-while player.get_state() not in (vlc.State.Playing, vlc.State.Paused):
-    time.sleep(0.05)
+def play_video(video_path):
+    """Load and play a specific video."""
+    media = vlc.Media(video_path)
+    player.set_media(media)
+    player.play()
 
-# Manual seamless-loop logic
+# start with looping video
+current_video = "loop"
+play_video(loop_video_path)
+
 while True:
-    length = player.get_length()
-    pos = player.get_time()
+    # check if trigger signal is active
+    if trigger_button.is_pressed and current_video == "loop":
+        # pick a random trigger video
+        if trigger_videos:
+            chosen_video = random.choice(trigger_videos)
+            print(f"Trigger detected! Playing: {chosen_video}")
+            current_video = "trigger"
+            play_video(chosen_video)
+        else:
+            print("No trigger videos found!")
 
-    if length > 0 and (length - pos) < 150:   # restart ~0.15 s before end
-        # restart media *without* tearing down the decoder
-        player.set_media(media)
-        player.play()
-        time.sleep(0.15)  # small delay to avoid double-trigger
-    time.sleep(0.02)
+    # check if video ended
+    state = player.get_state()
+    if state == vlc.State.Ended:
+        if current_video == "trigger":
+            print("Returning to loop.")
+            current_video = "loop"
+            play_video(loop_video_path)
+        elif current_video == "loop":
+            # restart loop
+            play_video(loop_video_path)
+
+    time.sleep(0.1)
