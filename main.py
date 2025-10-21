@@ -4,7 +4,7 @@ import platform
 import random
 import glob
 import time
-from gpiozero import Button  # assuming you’re using a GPIO pin as input
+from gpiozero import Button
 
 # --- setup ---
 if platform.system() == "Linux":
@@ -15,13 +15,14 @@ cache_ms = 400
 # whether or not to allow videos to play more than once in a row
 allow_repeats = False
 
-# pin setup (adjust pin number)
+# pin setup
 trigger_pin = 17
-trigger_button = Button(trigger_pin, pull_up=False)  # active HIGH input
+trigger_button = Button(trigger_pin, pull_up=False)
 
 # collect videos
 loop_video_path = "loop.mp4"
 trigger_videos = glob.glob("*trigger*.mp4")
+
 print(
     f"""
     Raspberry Pi Zero W Video Player
@@ -39,7 +40,6 @@ instance = vlc.Instance(f"--no-video-title-show --quiet --file-caching={cache_ms
 player = instance.media_player_new()
 
 def play_video(video_path):
-    """Load and play a specific video."""
     media = vlc.Media(video_path)
     player.set_media(media)
     player.play()
@@ -85,4 +85,4 @@ while True:
             # restart loop
             play_video(loop_video_path)
 
-    time.sleep(0.1)
+    time.sleep(0.01)
