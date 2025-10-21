@@ -49,6 +49,9 @@ play_video(loop_video_path)
 while True:
     # check if trigger signal is active
     if trigger_button.is_pressed and current_video == "loop":
+        # print the CPU temp for dev purposes
+        print("CPU temp:", os.popen("vcgencmd measure_temp").read().strip())
+
         # pick a random trigger video
         if trigger_videos:
 
@@ -57,7 +60,7 @@ while True:
             if not available_videos:  # all videos are the same as last, fallback
                 available_videos = trigger_videos
 
-            chosen_video = random.choice(trigger_videos)
+            chosen_video = random.choice(available_videos)
             print(f"Trigger detected! Playing: {chosen_video}")
             current_video = "trigger"
             play_video(chosen_video)
