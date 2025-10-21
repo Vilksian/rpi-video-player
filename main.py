@@ -10,6 +10,9 @@ from gpiozero import Button  # assuming you’re using a GPIO pin as input
 if platform.system() == "Linux":
     os.system("vcgencmd display_power 1")
 
+# the caching time in ms
+cache_ms = 400
+
 # pin setup (adjust pin number)
 trigger_pin = 17
 trigger_button = Button(trigger_pin, pull_up=False)  # active HIGH input
@@ -17,9 +20,19 @@ trigger_button = Button(trigger_pin, pull_up=False)  # active HIGH input
 # collect videos
 loop_video_path = "loop.mp4"
 trigger_videos = glob.glob("*trigger*.mp4")
+print(
+    f"""
+    Raspberry Pi Zero W Video Player
+    System: {platform.system()}
+    Cache Time: {cache_ms}
+    Loop Video: {"Found" if trigger_pin else "Not Found"}
+    Trigger Videos: {f"{len(trigger_videos)} Found"}
+    Trigger Pin: {trigger_pin}
+    """,
+)
 
 # VLC setup
-instance = vlc.Instance()
+instance = vlc.Instance(f"--no-video-title-show --quiet", "--file-caching={cache_ms}}")
 player = instance.media_player_new()
 
 def play_video(video_path):
