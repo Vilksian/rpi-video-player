@@ -12,6 +12,8 @@ if platform.system() == "Linux":
 
 # the caching time in ms
 cache_ms = 400
+# whether or not to allow videos to play more than once in a row
+allow_repeats = False
 
 # pin setup (adjust pin number)
 trigger_pin = 17
@@ -28,6 +30,7 @@ print(
     Loop Video: {"Found" if trigger_pin else "Not Found"}
     Trigger Videos: {f"{len(trigger_videos)} Found"}
     Trigger Pin: {trigger_pin}
+    Allow Repeats: {"Yes" if allow_repeats else "No"}
     """,
 )
 
@@ -57,7 +60,7 @@ while True:
 
             # make a list excluding the last played trigger
             available_videos = [v for v in trigger_videos if v != last_trigger_video]
-            if not available_videos:  # all videos are the same as last, fallback
+            if not available_videos or allow_repeats:  # there was only 1 video, or repeats are allowed
                 available_videos = trigger_videos
 
             chosen_video = random.choice(available_videos)
@@ -65,7 +68,7 @@ while True:
 
             # update last_trigger_video
             last_trigger_video = chosen_video
-            
+
             current_video = "trigger"
             play_video(chosen_video)
         else:
