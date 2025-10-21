@@ -32,7 +32,7 @@ print(
 )
 
 # VLC setup
-instance = vlc.Instance(f"--no-video-title-show --quiet", "--file-caching={cache_ms}}")
+instance = vlc.Instance(f"--no-video-title-show --quiet --file-caching={cache_ms}")
 player = instance.media_player_new()
 
 def play_video(video_path):
