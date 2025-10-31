@@ -11,8 +11,8 @@ cache_ms = 400
 allow_repeats = False
 
 # pin setup
-trigger_pin = 17
-trigger_button = Button(trigger_pin, pull_up=False)
+trigger_pin = 4
+trigger_button = Button(trigger_pin, pull_up=True)
 
 # collect videos
 loop_video_path = "loop.mp4"
